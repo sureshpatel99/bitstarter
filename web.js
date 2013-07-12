@@ -1,10 +1,7 @@
-var express = require('express');
-
 var fs = require('fs');
-var infile = "index.html";
+var str1 = fs.readFileSync('index.html', {encoding: 'utf8'});
 
-var str1 = fs.readFileSync(infile, {encoding: 'utf8'});
-
+var express = require('express');
 var app = express.createServer(express.logger());
 
 app.get('/', function(request, response) {
