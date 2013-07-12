@@ -4,7 +4,7 @@ var infile = "index.html";
 
 buf = new Buffer(256);
 
-var str1 = buf.toString(fs.readFileSync(infile));
+var str1 = buf.toString(fs.readFileSync(infile), 0, 26);
 
 var app = express.createServer(express.logger());
 
