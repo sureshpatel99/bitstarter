@@ -22,8 +22,12 @@ References:
 */
 
 var fs = require('fs');
+var restler = require('restler');
+var sys = require('util');
+
 var program = require('commander');
 var cheerio = require('cheerio');
+var FILEURL_DEFAULT = "http://vast-ocean-2974.herokuapp.com";
 var HTMLFILE_DEFAULT = "index.html";
 var CHECKSFILE_DEFAULT = "checks.json";
 
@@ -63,12 +67,39 @@ var clone = function(fn) {
 
 if(require.main == module) {
     program
-        .option('-f, --file <html_file>', 'Path to index.html', clone(assertFileExists), HTMLFILE_DEFAULT)
+        .option('-u, --url   <command_url>', 'Url for a html_file')
+        .option('-f, --file    <html_file>', 'Path to index.html')
         .option('-c, --checks <check_file>', 'Path to checks.json', clone(assertFileExists), CHECKSFILE_DEFAULT)
         .parse(process.argv);
-    var checkJson = checkHtmlFile(program.file, program.checks);
+
+    if (program.url){ 
+    	var file_url = program.url;
+	console.log('URL Specified: ' + file_url);
+
+	var filename = "download.html";
+	restler.get(file_url, {
+		}).on('complete', function(data){
+			if(data instanceof Error){
+				sys.puts('Error: ' + data.message);
+			}else{
+				fs.writeFile('./' + filename, data, function(err, data){
+    var checkJson = checkHtmlFile(html_file, program.checks);
     var outJson = JSON.stringify(checkJson, null, 4);
     console.log(outJson);
+				})
+			}
+		});
+    	var html_file = filename;
+    }
+    else if (program.file){ 
+	console.log('FILE Specified');
+    	var html_file = program.file;
+	assertFileExists(html_file);
+
+    var checkJson = checkHtmlFile(html_file, program.checks);
+    var outJson = JSON.stringify(checkJson, null, 4);
+    console.log(outJson);
+    }
 } else {
     exports.checkHtmlFile = checkHtmlFile;
 }
